@@ -2,22 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "package.json",
+      "src": "api/index.js",
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [
-    { "source": "/api/admin/login", "destination": "/api/admin/login.js" },
-    { "source": "/api/admin/get-data", "destination": "/api/admin/get-data.js" },
-    { "source": "/api/admin/add-category", "destination": "/api/admin/add-category.js" },
-    { "source": "/api/admin/add-playlist", "destination": "/api/admin/add-playlist.js" },
-    { "source": "/api/proxy", "destination": "/api/proxy.js" },
-    { "source": "/admin", "destination": "/admin/index.html" },
-    { "source": "/admin/(.*)", "destination": "/admin/index.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.js"
+    }
   ]
 }
