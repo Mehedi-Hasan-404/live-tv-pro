@@ -1,26 +1,20 @@
 {
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/admin", "destination": "/admin/index.html" },
-    { "source": "/admin/(.*)", "destination": "/admin/index.html" }
-  ],
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,DELETE,OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
-      ]
-    }
-  ],
+  "version": 2,
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["lib/**", "api/**"]
-      }
+      "use": "@vercel/node"
     }
+  ],
+  "rewrites": [
+    { "source": "/api/admin/login", "destination": "/api/admin/login.js" },
+    { "source": "/api/admin/get-data", "destination": "/api/admin/get-data.js" },
+    { "source": "/api/admin/add-category", "destination": "/api/admin/add-category.js" },
+    { "source": "/api/admin/add-playlist", "destination": "/api/admin/add-playlist.js" },
+    { "source": "/api/proxy", "destination": "/api/proxy.js" },
+    { "source": "/admin", "destination": "/admin/index.html" },
+    { "source": "/admin/(.*)", "destination": "/admin/index.html" },
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
