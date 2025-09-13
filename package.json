@@ -8,11 +8,6 @@
     "dev": "serve ."
   },
   "dependencies": {
-    "firebase": "^9.23.0",
-    "jsonwebtoken": "^9.0.0",
-    "bcryptjs": "^2.4.3"
-  },
-  "devDependencies": {
     "serve": "^14.2.0"
   },
   "keywords": ["iptv", "streaming", "live-tv", "m3u", "hls"],
