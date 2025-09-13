@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Live TV Pro - Admin Panel</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #e0e0e0; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+  .login-form, .admin-panel { background: #1a1a1a; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+  .form-group { margin-bottom: 20px; }
+  label { display: block; margin-bottom: 8px; font-weight: 500; color: #e0e0e0; }
+  input, select, textarea { width: 100%; padding: 12px; border: 2px solid #2a2a2a; border-radius: 8px; background: #1f1f1f; color: #e0e0e0; font-size: 16px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #e74c3c; }
+  button { background: #e74c3c; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.2s; }
+  button:hover { background: #c0392b; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3); }
+  .tabs { display: flex; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { padding: 15px 20px; background: #2a2a2a; cursor: pointer; border-radius: 8px; font-weight: 500; transition: all 0.2s; margin-right: 10px; margin-bottom: 10px; }
+  .tab.active { background: #e74c3c; color: white; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .categories-grid, .playlists-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+  .category-card, .playlist-card { background: #1f1f1f; padding: 15px; border-radius: 8px; border: 1px solid #333; }
+  .hidden { display: none; }
+  .alert { padding: 15px; margin-bottom: 20px; border-radius: 8px; }
+  .alert-success { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
+  .alert-error { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+  .logo { font-size: 28px; font-weight: 700; color: #e74c3c; }
+  .logout-btn { background: #34495e; }
+  .logout-btn:hover { background: #2c3e50; }
+  h2 { color: #e0e0e0; margin-bottom: 20px; font-weight: 600; }
+  h3 { color: #e0e0e0; margin-bottom: 20px; font-weight: 500; }
+  small { color: #999; font-size: 14px; }
+  .card-content { margin-top: 15px; }
+  .card-content p { margin: 8px 0; font-size: 14px; }
+  .card-content strong { color: #ccc; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div id="loginSection">
+      <div class="login-form">
+        <div class="header">
+          <div class="logo">📺 Live TV Pro</div>
+        </div>
+        <h2>Admin Login</h2>
+        <div id="loginAlert" class="alert hidden"></div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" placeholder="Enter admin password">
+        </div>
+        <button onclick="login()">Login</button>
+      </div>
+    </div>
+    
+    <div id="adminPanel" class="hidden">
+      <div class="admin-panel">
+        <div class="header">
+          <div class="logo">📺 Live TV Pro</div>
+          <button onclick="logout()" class="logout-btn">Logout</button>
+        </div>
+        <h2>Admin Dashboard</h2>
+        
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab('categories')">Categories</div>
+          <div class="tab" onclick="switchTab('playlists')">Playlists</div>
+          <div class="tab" onclick="switchTab('add-category')">Add Category</div>
+          <div class="tab" onclick="switchTab('add-playlist')">Add Playlist</div>
+        </div>
+        
+        <div id="loginAlert2" class="alert hidden"></div>
+        
+        <!-- Categories Tab -->
+        <div id="categories-tab" class="tab-content active">
+          <h3>Categories</h3>
+          <div id="categoriesList" class="categories-grid">
+            <!-- Categories will be loaded here -->
+          </div>
+        </div>
+        
+        <!-- Playlists Tab -->
+        <div id="playlists-tab" class="tab-content">
+          <h3>Playlists</h3>
+          <div id="playlistsList" class="playlists-grid">
+            <!-- Playlists will be loaded here -->
+          </div>
+        </div>
+        
+        <!-- Add Category Tab -->
+        <div id="add-category-tab" class="tab-content">
+          <h3>Add New Category</h3>
+          <div class="form-group">
+            <label for="categoryName">Category Name:</label>
+            <input type="text" id="categoryName" placeholder="Enter category name">
+          </div>
+          <div class="form-group">
+            <label for="categoryIcon">Icon URL:</label>
+            <input type="url" id="categoryIcon" placeholder="Enter icon URL">
+          </div>
+          <div class="form-group">
+            <label for="categoryPlaylist">Playlist URL:</label>
+            <input type="url" id="categoryPlaylist" placeholder="Enter playlist URL">
+          </div>
+          <button onclick="addCategory()">Add Category</button>
+        </div>
+        
+        <!-- Add Playlist Tab -->
+        <div id="add-playlist-tab" class="tab-content">
+          <h3>Add New Playlist</h3>
+          <div class="form-group">
+            <label for="playlistName">Playlist Name:</label>
+            <input type="text" id="playlistName" placeholder="Enter playlist name">
+          </div>
+          <div class="form-group">
+            <label for="playlistUrl">Playlist URL:</label>
+            <input type="url" id="playlistUrl" placeholder="Enter playlist URL">
+          </div>
+          <div class="form-group">
+            <label for="playlistCategory">Category:</label>
+            <select id="playlistCategory">
+              <option value="">Select category</option>
+              <!-- Categories will be loaded here -->
+            </select>
+          </div>
+          <button onclick="addPlaylist()">Add Playlist</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let authToken = localStorage.getItem('adminToken');
+    
+    // Check if already logged in
+    if (authToken) {
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('adminPanel').classList.remove('hidden');
+      loadData();
+    }
+    
+    async function login() {
+      const password = document.getElementById('password').value;
+      const alert = document.getElementById('loginAlert');
+      
+      if (!password) {
+        showAlert(alert, 'Please enter password', 'error');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          authToken = data.token;
+          localStorage.setItem('adminToken', authToken);
+          document.getElementById('loginSection').classList.add('hidden');
+          document.getElementById('adminPanel').classList.remove('hidden');
+          loadData();
+          showAlert(alert, data.message, 'success');
+        } else {
+          showAlert(alert, data.message, 'error');
+        }
+      } catch (error) {
+        showAlert(alert, 'Login failed: ' + error.message, 'error');
+      }
+    }
+    
+    function logout() {
+      localStorage.removeItem('adminToken');
+      authToken = null;
+      document.getElementById('loginSection').classList.remove('hidden');
+      document.getElementById('adminPanel').classList.add('hidden');
+      document.getElementById('password').value = '';
+    }
+    
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Show selected tab
+      document.getElementById(tabName + '-tab').classList.add('active');
+      event.target.classList.add('active');
+    }
+    
+    async function loadData() {
+      try {
+        const response = await fetch('/api/admin/get-data');
+        const data = await response.json();
+        
+        renderCategories(data.categories);
+        renderPlaylists(data.playlists);
+        populateCategorySelect(data.categories);
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    }
+    
+    function renderCategories(categories) {
+      const container = document.getElementById('categoriesList');
+      container.innerHTML = categories.map(cat => `
+        <div class="category-card">
+          <h4>${cat.name}</h4>
+          <div class="card-content">
+            <p><strong>Playlist:</strong> ${cat.playlistUrl}</p>
+            <p><strong>Icon:</strong> ${cat.icon || 'None'}</p>
+            <small>Added: ${new Date(cat.createdAt).toLocaleDateString()}</small>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function renderPlaylists(playlists) {
+      const container = document.getElementById('playlistsList');
+      container.innerHTML = playlists.map(playlist => `
+        <div class="playlist-card">
+          <h4>${playlist.name}</h4>
+          <div class="card-content">
+            <p><strong>URL:</strong> ${playlist.url}</p>
+            <p><strong>Category:</strong> ${playlist.category || 'None'}</p>
+            <small>Added: ${new Date(playlist.createdAt).toLocaleDateString()}</small>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function populateCategorySelect(categories) {
+      const select = document.getElementById('playlistCategory');
+      select.innerHTML = '<option value="">Select category</option>' + 
+        categories.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('');
+    }
+    
+    async function addCategory() {
+      const name = document.getElementById('categoryName').value;
+      const icon = document.getElementById('categoryIcon').value;
+      const playlistUrl = document.getElementById('categoryPlaylist').value;
+      const alert = document.getElementById('loginAlert2');
+      
+      if (!name || !playlistUrl) {
+        showAlert(alert, 'Please fill all required fields', 'error');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/admin/add-category', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ name, icon, playlistUrl })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showAlert(alert, data.message, 'success');
+          document.getElementById('categoryName').value = '';
+          document.getElementById('categoryIcon').value = '';
+          document.getElementById('categoryPlaylist').value = '';
+          loadData();
+        } else {
+          showAlert(alert, data.error || 'Failed to add category', 'error');
+        }
+      } catch (error) {
+        showAlert(alert, 'Error adding category: ' + error.message, 'error');
+      }
+    }
+    
+    async function addPlaylist() {
+      const name = document.getElementById('playlistName').value;
+      const url = document.getElementById('playlistUrl').value;
+      const category = document.getElementById('playlistCategory').value;
+      const alert = document.getElementById('loginAlert2');
+      
+      if (!name || !url) {
+        showAlert(alert, 'Please fill all required fields', 'error');
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/admin/add-playlist', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ name, url, category })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          showAlert(alert, data.message, 'success');
+          document.getElementById('playlistName').value = '';
+          document.getElementById('playlistUrl').value = '';
+          loadData();
+        } else {
+          showAlert(alert, data.error || 'Failed to add playlist', 'error');
+        }
+      } catch (error) {
+        showAlert(alert, 'Error adding playlist: ' + error.message, 'error');
+      }
+    }
+    
+    function showAlert(element, message, type) {
+      element.textContent = message;
+      element.className = `alert alert-${type}`;
+      element.classList.remove('hidden');
+      
+      setTimeout(() => {
+        element.classList.add('hidden');
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
